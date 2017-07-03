@@ -1,11 +1,16 @@
 const remote = require('electron').remote;
 const app = remote.app;
-const receiver = remote.getGlobal("receiver");
-const sender = remote.getGlobal("sender");
+var express = require('express');
+const server = require('http').createServer();
+const receiver = require('socket.io')(server);
+const sender = require('socket.io-client');
 
 (function ($) {
     var chatList = [];
-
+    server.on("error", (e) => {
+        alert("端口被占用，请重启app");
+    })
+    server.listen(3000);
 
     receiver.on('connection', function(socket){
         socket.on("hello", function (data) {
@@ -14,26 +19,16 @@ const sender = remote.getGlobal("sender");
         socket.on('disconnect', function(){
             incoming = null;
         });
-        socket.on("message", function(data) {
-            chatList[data.from].history.append({
-                type: 'other',
-                message: data.message,
-                extmsg: "fake date"
-            })
-            if (data.from == current_friend) {
-                append_msg('other', data.message, 'Fake Date');
-            }
-        })
+        socket.on("message", receive_msg);
     });
     function makeConnection(target) {
+        current_username = "user2";
         var socket = sender.connect('http://' + target.device.IP + ':' + target.device.port);
         chatList[target.username].socket = socket;
         socket.emit("hello", {
             username: current_username
-        })
-        socket.on('message', function(data) {
-            alert(data.user + data.message);
-        })
+        });
+        socket.on('message', receive_msg);
         return socket;
     }
 
@@ -49,7 +44,7 @@ const sender = remote.getGlobal("sender");
         current_friend = $(this).parent().find(".username").html();
         current_friendimgurl = $(this).parent().parent().find("img").attr("src");
         $("#current_chatname").html("你正在与 " + current_friend + " 进行交易");
-        if (chatList[current_friend].socket == null) {
+        if (jQuery.isEmptyObject(chatList[current_friend].socket)) {
             makeConnection(chatList[current_friend]);
         }
         chatList[current_friend].history.forEach(function(element) {
@@ -64,7 +59,7 @@ const sender = remote.getGlobal("sender");
             content: $("#input_msg").val()
         })
         append_msg('me', $("#input_msg").val(), "假装有日期时间")
-        chatList[current_friend].history.append({
+        chatList[current_friend].history.push({
             type: 'me',
             message: $("#input_msg").val(),
             extmsg: "假装有日期时间"
@@ -119,6 +114,17 @@ const sender = remote.getGlobal("sender");
         $("#newfriend").val("");
         refresh_friendlist();
     });
+
+    function receive_msg(data) {
+        chatList[data.from].history.push({
+            type: 'other',
+            message: data.content,
+            extmsg: "fake date"
+        })
+        if (data.from == current_friend) {
+            append_msg('other', data.content, 'Fake Date');
+        }
+    }
 
     function append_msg($type, $msg, $extmsg) {
         switch ($type) {
@@ -190,7 +196,7 @@ const sender = remote.getGlobal("sender");
                 $.each(data, function (id, piece) {
                     append_fiend(piece.username, piece.pic);
                     chatList[piece.username] = piece;
-                    chatList[piece.username].socket = null;
+                    chatList[piece.username].socket = {};
                     chatList[piece.username].history = [];
                 })
             });
