@@ -16,6 +16,20 @@ const cipher = require('jsrsasign');
         'useAJAX': true,
     };
 
+    // Key paire and device info
+    //----------------------------------------------
+    var keyPaire = {
+        prvKeyObj: {},
+        pubKeyObj: {},
+        pemPublic: "",
+        pemPrivate: ""
+    }
+    var deviceInfo = {
+        name: "",
+        IP: "",
+        port: 0
+    }
+
     // Login Form
     //----------------------------------------------
     // Validation
@@ -35,16 +49,13 @@ const cipher = require('jsrsasign');
         var password = $("#lg_password").val();
         var userPath = app.getPath("userData") + '/document/' + username;
         try {
-            var pemPrivate = fs.readFileSync(userPath + '/private.pem', 'utf8');
-            var pemPublic = fs.readFileSync(userPath + '/public.pem', 'utf8');
-            var keyPaire = {
-                prvKeyObj: {},
-                pubKeyObj: {}
-            };
-            keyPaire.prvKeyObj = cipher.KEYUTIL.getKeyFromEncryptedPKCS8PEM(pemPrivate, password);
-            keyPaire.pubKeyObj = cipher.KEYUTIL.getKey(pemPublic);
+            keyPaire.pemPrivate = fs.readFileSync(userPath + '/private.pem', 'utf8');
+            keyPaire.pemPublic = fs.readFileSync(userPath + '/public.pem', 'utf8');
+            keyPaire.prvKeyObj = cipher.KEYUTIL.getKeyFromEncryptedPKCS8PEM(keyPaire.pemPrivate, password);
+            keyPaire.pubKeyObj = cipher.KEYUTIL.getKey(keyPaire.pemPublic);
             
         } catch (e) {
+            alert(e.message);
             try {
                 try {
                     fs.mkdirSync(userPath);
@@ -53,11 +64,11 @@ const cipher = require('jsrsasign');
                 }
                 var privFile = fs.openSync(userPath + '/private.pem', 'w');
                 var pubFile = fs.openSync(userPath + '/public.pem', 'w');
-                var keyPaire = cipher.KEYUTIL.generateKeypair("EC", "secp256r1");
-                var pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV", password);
-                fs.writeSync(privFile, pemPrivate);
-                var pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
-                fs.writeSync(pubFile, pemPublic);
+                keyPaire = cipher.KEYUTIL.generateKeypair("EC", "secp256r1");
+                keyPaire.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV", password);
+                fs.writeSync(privFile, keyPaire.pemPrivate);
+                keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
+                fs.writeSync(pubFile, keyPaire.pemPublic);
                 alert("key paire generated");
             } catch (error) {
                 alert("创建密钥失败" + error.message);
@@ -113,17 +124,8 @@ const cipher = require('jsrsasign');
     // Form Submission
     $("#register-form").submit(function() {
         remove_loading($(this));
-
-        if(options['useAJAX'] == true)
-        {
-            // Dummy AJAX request (Replace this with your AJAX code)
-            // If you don't want to use AJAX, remove this
-            dummy_submit_form($(this),'reg');
-
-            // Cancel the normal submission.
-            // If you don't want to use AJAX, remove this
-            return false;
-        }
+        dummy_submit_form($(this),'reg');
+        return false;
     });
 
     // Loading
@@ -159,6 +161,8 @@ const cipher = require('jsrsasign');
         if($form.valid())
         {
             form_loading($form);
+            var mixedData = new FormData($form[0]);
+            
             switch ($type)
             {
                 case 'login':
@@ -166,7 +170,7 @@ const cipher = require('jsrsasign');
                         {
                             type: 'POST',
                             url: 'login.php',
-                            data: $form.serialize(),
+                            data: mixedData,
                             dataType: 'json'
                         })
                         .done(function (data) {
