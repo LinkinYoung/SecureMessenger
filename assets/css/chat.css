@@ -1,0 +1,25 @@
+#chatbox-list {
+    height: 500px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+#friend-list {
+    height: 560px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+html body {
+    background-color: #efefef;
+}
+
+btn {
+    cursor: pointer;
+}
+
+img.img-circle {
+    height: 40px;
+    width: 40px;
+}

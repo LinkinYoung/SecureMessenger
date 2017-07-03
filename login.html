@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex">
+
+  <title>搞事系统 - 跃迁入口</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <link rel="stylesheet" href="assets/css/login.css" type="text/css">
+  <script src="assets/js/jquery-3.1.1.min.js"></script>
+  <script src="assets/js/bootstrap.min.js"></script>
+
+  <!-- All the files that are required -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <link href="http://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" type="text/css">
+  <script src="assets/js/jquery.validate.min.js"></script>
+</head>
+
+<body >
+<!-- Where all the magic happens -->
+<!-- LOGIN FORM -->
+<div class="text-center" id="loginwindow" style="padding-bottom: 100%; padding-top: 50px">
+  <div class="logo">搞事系统 - 跃迁入口</div>
+  <!-- Main Form -->
+  <div class="login-form-1">
+    <form id="login-form" class="text-left">
+      <div class="login-form-main-message"></div>
+      <div class="main-login-form">
+        <div class="login-group">
+          <div class="form-group">
+            <label for="lg_username" class="sr-only">用户名</label>
+            <input type="text" class="form-control" id="lg_username" name="username"
+                   placeholder="用户名">
+          </div>
+          <div class="form-group">
+            <label for="lg_password" class="sr-only">密码</label>
+            <input type="password" class="form-control" id="lg_password" name="password"
+                   placeholder="密码">
+          </div>
+        </div>
+        <button type="submit" class="login-button"><i class="fa fa-chevron-right"></i></button>
+      </div>
+      <div class="etc-login-form">
+        <p>新来的？ <a href="#" onclick="$('html, body').animate({ scrollTop: $('#loginwindow').outerHeight()
+                    }, 300);">点这交易</a></p>
+      </div>
+    </form>
+  </div>
+  <!-- end:Main Form -->
+</div>
+
+<!-- REGISTRATION FORM -->
+<div class="text-center" style="padding-top:10%; padding-bottom: 30%">
+  <div class="logo">新用户交易系统</div>
+  <!-- Main Form -->
+  <div class="login-form-1">
+    <form id="register-form" class="text-left">
+      <div class="login-form-main-message"></div>
+      <div class="main-login-form">
+        <div class="login-group">
+          <div class="form-group">
+            <label for="reg_username" class="sr-only">用户名</label>
+            <input type="text" class="form-control" id="reg_username" name="username"
+                   placeholder="用户名">
+          </div>
+          <div class="form-group">
+            <label for="reg_password" class="sr-only">密码</label>
+            <input type="password" class="form-control" id="reg_password" name="password"
+                   placeholder="密码">
+          </div>
+          <div class="form-group">
+            <label for="reg_password_confirm" class="sr-only">密码再来一遍</label>
+            <input type="password" class="form-control" id="reg_password_confirm"
+                   name="reg_password_confirm" placeholder="密码再来一遍">
+          </div>
+          <div class="form-group">
+            <input type="file" class="form-control" id="pic_upload"
+                   name="pic_upload">
+          </div>
+          <div class="form-group login-group-checkbox">
+            <input type="checkbox" class="" id="reg_agree" name="reg_agree">
+            <label for="reg_agree">我同意 <a href="#" onclick="alert('NO Terms!');">搞事守则</a></label>
+          </div>
+        </div>
+        <button type="submit" class="login-button"><i class="fa fa-chevron-right"></i></button>
+      </div>
+      <div class="etc-login-form">
+        <p>已经是老司机了？ <a id="goto_login_button" href="#" onclick="$('html, body').animate({ scrollTop: -$('#loginwindow').outerHeight()
+                    }, 300);">从这刷卡</a></p>
+      </div>
+    </form>
+  </div>
+  <!-- end:Main Form -->
+</div>
+<script src="assets/js/cookies.js"></script>
+<script src="assets/js/login.js"></script>
+</body>

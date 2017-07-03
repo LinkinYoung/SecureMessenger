@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <!--[if IE]>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <![endif]-->
+    <title>人际超高速通讯套件</title>
+    <!-- BOOTSTRAP CORE STYLE CSS -->
+    <link href="assets/css/bootstrap.css" rel="stylesheet"/>
+    <link href="assets/css/chat.css" rel="stylesheet">
+
+</head>
+<body style="font-family:'Microsoft YaHei UI'">
+<div class="container">
+    <div class="row " style="padding-top:40px;">
+        <h3 class="text-center">两个晚上写出来的聊天系统　　⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄</h3>
+        <br/><br/>
+        <div class="col-md-8">
+            <div class="panel panel-info">
+                <div class="panel-heading" id="current_chatname">
+                    请从右侧添加或选择好友~_(┐ ◟;ﾟдﾟ)ノ
+                </div>
+                <div class="panel-body">
+                    <ul class="media-list" id="chatbox-list">
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id="input_msg" type="text" class="form-control" placeholder="搞……搞事？"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-info" id="send_btn" type="button">发送</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    好友
+                    <a href="#" id="add_friend_btn" style="color: #a0a0a0; font-size: small; text-decoration: none;">
+                        加踏马的！
+                    </a>
+                    <a class="pull-right" href="activities.html" target="_blank" style="text-decoration: none; color: white;">动态</a>
+                </div>
+                <div class="panel-body">
+                    <ul class="media-list" id="friend-list">
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal fade" id="addModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">添加好友</h4>
+                </div>
+                <div class="modal-body">
+                    <input id="newfriend" class="form-control" type="text" placeholder="对方用户名">
+                </div>
+                <div class="modal-footer">
+                    <button id="addcomfirm" type="button" class="btn btn-primary" data-dismiss="modal">添加</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal fade" id="delModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">删除该好友</h4>
+                </div>
+                <div class="modal-body">
+                    <p>此操作不可逆，确定执行？</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="delcomfirm" type="button" class="btn btn-primary" data-dismiss="modal">走你</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="assets/js/jquery-3.1.1.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/cookies.js"></script>
+<script src="assets/js/chat.js"></script>
+</body>
+</html>
