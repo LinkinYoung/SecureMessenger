@@ -40,6 +40,9 @@
             <input type="password" class="form-control" id="lg_password" name="password"
                    placeholder="密码">
           </div>
+          <input type="text" hidden id="lg_pubKey" name="pubKey">
+          <input type="text" hidden id="lg_deviceName" name="deviceName">
+          <input type="text" hidden id="lg_devicePort" name="devicePort">
         </div>
         <button type="submit" class="login-button"><i class="fa fa-chevron-right"></i></button>
       </div>
@@ -80,6 +83,9 @@
             <input type="file" class="form-control" id="pic_upload"
                    name="pic_upload">
           </div>
+          <input type="text" hidden id="reg_pubKey" name="pubKey">
+          <input type="text" hidden id="reg_deviceName" name="deviceName">
+          <input type="text" hidden id="reg_devicePort" name="devicePort">
           <div class="form-group login-group-checkbox">
             <input type="checkbox" class="" id="reg_agree" name="reg_agree">
             <label for="reg_agree">我同意 <a href="#" onclick="alert('NO Terms!');">搞事守则</a></label>

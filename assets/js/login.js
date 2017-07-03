@@ -1,6 +1,7 @@
 const app = require('electron').remote.app;
 const fs = require('fs');
 const cipher = require('jsrsasign');
+const os = require('os');
 
 (function($) {
     "use strict";
@@ -25,8 +26,7 @@ const cipher = require('jsrsasign');
         pemPrivate: ""
     }
     var deviceInfo = {
-        name: "",
-        IP: "",
+        name: os.hostname(),
         port: 0
     }
 
@@ -53,7 +53,6 @@ const cipher = require('jsrsasign');
             keyPaire.pemPublic = fs.readFileSync(userPath + '/public.pem', 'utf8');
             keyPaire.prvKeyObj = cipher.KEYUTIL.getKeyFromEncryptedPKCS8PEM(keyPaire.pemPrivate, password);
             keyPaire.pubKeyObj = cipher.KEYUTIL.getKey(keyPaire.pemPublic);
-            
         } catch (e) {
             alert(e.message);
             try {
@@ -69,12 +68,13 @@ const cipher = require('jsrsasign');
                 fs.writeSync(privFile, keyPaire.pemPrivate);
                 keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
                 fs.writeSync(pubFile, keyPaire.pemPublic);
-                alert("key paire generated");
             } catch (error) {
                 alert("创建密钥失败" + error.message);
             }
         }
-        
+        $("#lg_pubKey").val(keyPaire.pemPublic);
+        $("#lg_deviceName").val(deviceInfo.name);
+        $("#lg_devicePort").val(deviceInfo.port);
 
         
         dummy_submit_form($(this),'login');
@@ -124,6 +124,30 @@ const cipher = require('jsrsasign');
     // Form Submission
     $("#register-form").submit(function() {
         remove_loading($(this));
+
+        var username = $("#reg_username").val();
+        var password = $("#reg_password").val();
+        var userPath = app.getPath("userData") + '/document/' + username;
+        try {
+                try {
+                    fs.mkdirSync(userPath);
+                } catch (direxists) {
+
+                }
+                var privFile = fs.openSync(userPath + '/private.pem', 'w');
+                var pubFile = fs.openSync(userPath + '/public.pem', 'w');
+                keyPaire = cipher.KEYUTIL.generateKeypair("EC", "secp256r1");
+                keyPaire.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV", password);
+                fs.writeSync(privFile, keyPaire.pemPrivate);
+                keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
+                fs.writeSync(pubFile, keyPaire.pemPublic);
+        } catch (error) {
+            alert("创建密钥失败" + error.message);
+        }
+        $("#reg_pubKey").val(keyPaire.pemPublic);
+        $("#reg_deviceName").val(deviceInfo.name);
+        $("#reg_devicePort").val(deviceInfo.port);
+
         dummy_submit_form($(this),'reg');
         return false;
     });
@@ -162,7 +186,6 @@ const cipher = require('jsrsasign');
         {
             form_loading($form);
             var mixedData = new FormData($form[0]);
-            
             switch ($type)
             {
                 case 'login':
@@ -184,12 +207,11 @@ const cipher = require('jsrsasign');
                         });
                     break;
                 case 'reg':
-                    var formData = new FormData($form[0]);
                     $.ajax(
                         {
                             type: 'POST',
                             url: 'login.php?reg=1',
-                            data: formData,
+                            data: mixedData,
                             dataType: 'json',
                             async: false,
                             cache: false,
