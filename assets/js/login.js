@@ -1,6 +1,7 @@
-/**
- * Created by shzha on 2016/12/28.
- */
+const app = require('electron').remote.app;
+const fs = require('fs');
+const cipher = require('jsrsasign');
+
 (function($) {
     "use strict";
 
@@ -30,16 +31,43 @@
     $("#login-form").submit(function() {
         remove_loading($(this));
 
-        if(options['useAJAX'] == true)
-        {
-            // Dummy AJAX request (Replace this with your AJAX code)
-            // If you don't want to use AJAX, remove this
-            dummy_submit_form($(this),'login');
+        var username = $("#lg_username").val();
+        var password = $("#lg_password").val();
+        var userPath = app.getPath("userData") + '/document/' + username;
+        try {
+            var pemPrivate = fs.readFileSync(userPath + '/private.pem', 'utf8');
+            var pemPublic = fs.readFileSync(userPath + '/public.pem', 'utf8');
+            var keyPaire = {
+                prvKeyObj: {},
+                pubKeyObj: {}
+            };
+            keyPaire.prvKeyObj = cipher.KEYUTIL.getKeyFromEncryptedPKCS8PEM(pemPrivate, password);
+            keyPaire.pubKeyObj = cipher.KEYUTIL.getKey(pemPublic);
+            
+        } catch (e) {
+            try {
+                try {
+                    fs.mkdirSync(userPath);
+                } catch (direxists) {
 
-            // Cancel the normal submission.
-            // If you don't want to use AJAX, remove this
-            return false;
+                }
+                var privFile = fs.openSync(userPath + '/private.pem', 'w');
+                var pubFile = fs.openSync(userPath + '/public.pem', 'w');
+                var keyPaire = cipher.KEYUTIL.generateKeypair("EC", "secp256r1");
+                var pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV", password);
+                fs.writeSync(privFile, pemPrivate);
+                var pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
+                fs.writeSync(pubFile, pemPublic);
+                alert("key paire generated");
+            } catch (error) {
+                alert("创建密钥失败" + error.message);
+            }
         }
+        
+
+        
+        dummy_submit_form($(this),'login');
+        return false;
     });
 
     // Register Form
