@@ -1,7 +1,42 @@
-/**
- * Created by shzha on 2016/12/28.
- */
+const remote = require('electron').remote;
+const app = remote.app;
+const receiver = remote.getGlobal("receiver");
+const sender = remote.getGlobal("sender");
+
 (function ($) {
+    var chatList = [];
+
+
+    receiver.on('connection', function(socket){
+        socket.on("hello", function (data) {
+            chatList[data.username].socket = socket;
+        })
+        socket.on('disconnect', function(){
+            incoming = null;
+        });
+        socket.on("message", function(data) {
+            chatList[data.from].history.append({
+                type: 'other',
+                message: data.message,
+                extmsg: "fake date"
+            })
+            if (data.from == current_friend) {
+                append_msg('other', data.message, 'Fake Date');
+            }
+        })
+    });
+    function makeConnection(target) {
+        var socket = sender.connect('http://' + target.device.IP + ':' + target.device.port);
+        chatList[target.username].socket = socket;
+        socket.emit("hello", {
+            username: current_username
+        })
+        socket.on('message', function(data) {
+            alert(data.user + data.message);
+        })
+        return socket;
+    }
+
     var current_username = Cookies.get('username');
     var current_userimgurl = Cookies.get('imgurl');
     var current_friend = '';
@@ -14,20 +49,26 @@
         current_friend = $(this).parent().find(".username").html();
         current_friendimgurl = $(this).parent().parent().find("img").attr("src");
         $("#current_chatname").html("你正在与 " + current_friend + " 进行交易");
+        if (chatList[current_friend].socket == null) {
+            makeConnection(chatList[current_friend]);
+        }
+        chatList[current_friend].history.forEach(function(element) {
+            append_msg(element.type, element.message, element.extmsg);
+        }, this); 
         console.log("Change to" + current_friend + ", img: " + current_friendimgurl);
     });
 
     $("#send_btn").click(function () {
-        $.ajax(
-            {
-                type: 'POST',
-                url: 'message.php?method=send',
-                data: {'content': $("#input_msg").val(), 'to': current_friend},
-                dataType: 'json'
-            })
-            .done(function (data) {
-                if (data.code > 300) alert(data.message);
-            });
+        chatList[current_friend].socket.emit("message", {
+            from: current_username,
+            content: $("#input_msg").val()
+        })
+        append_msg('me', $("#input_msg").val(), "假装有日期时间")
+        chatList[current_friend].history.append({
+            type: 'me',
+            message: $("#input_msg").val(),
+            extmsg: "假装有日期时间"
+        })
         $("#input_msg").val('');
     });
 
@@ -148,6 +189,9 @@
             .done(function (data) {
                 $.each(data, function (id, piece) {
                     append_fiend(piece.username, piece.pic);
+                    chatList[piece.username] = piece;
+                    chatList[piece.username].socket = null;
+                    chatList[piece.username].history = [];
                 })
             });
     }

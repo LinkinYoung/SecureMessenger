@@ -6,6 +6,11 @@ var server = require('http').createServer();
 var receiver = require('socket.io')(server);
 var sender = require('socket.io-client');
 
+port = Math.floor(Math.random() * 10000 + 20000);
+server.on("error", (e) => {
+  alert("端口被占用，请重启app");
+})
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -23,6 +28,9 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+  
+  // Start chat listener
+  server.listen(port);
 
   // Open the DevTools.
   win.webContents.openDevTools()

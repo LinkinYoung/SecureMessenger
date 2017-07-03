@@ -1,4 +1,5 @@
-const app = require('electron').remote.app;
+const remote = require('electron').remote;
+const app = remote.app;
 const fs = require('fs');
 const cipher = require('jsrsasign');
 const os = require('os');
@@ -27,7 +28,7 @@ const os = require('os');
     }
     var deviceInfo = {
         name: os.hostname(),
-        port: 0
+        port: remote.getGlobal("port")
     }
 
     // Login Form
@@ -201,7 +202,7 @@ const os = require('os');
                             {
                                 Cookies.set('username',$("#lg_username").val());
                                 setTimeout(function() {form_success($form, data.message);}, 500);
-                                setTimeout(function() {location.href = 'index.php';}, 1000);
+                                setTimeout(function() {location.href = 'chat.html';}, 1000);
                             }
                             else setTimeout(function() {form_failed($form, data.message);}, 500);
                         });
