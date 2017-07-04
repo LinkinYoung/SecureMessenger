@@ -4,17 +4,38 @@ var express = require('express');
 const server = require('http').createServer();
 const receiver = require('socket.io')(server);
 const sender = require('socket.io-client');
+const cipher = require('jsrsasign');
 
 (function ($) {
+    // Read key pairs
+    //--------------------------------------------
+    var keyPaire = {
+        prvKeyObj: {},
+        pubKeyObj: {},
+        pemPublic: "",
+        pemPrivate: ""
+    }
+    try {
+        keyPaire.pemPrivate = localStorage.pemPrivate;
+        keyPaire.pemPublic = localStorage.pemPublic;
+        keyPaire.prvKeyObj = cipher.KEYUTIL.getKeyFromPlainPrivatePKCS8PEM(keyPaire.pemPrivate);
+        keyPaire.pubKeyObj = cipher.KEYUTIL.getKey(keyPaire.pemPublic);
+    } catch (fileerr) {
+        alert("读取密钥对失败");
+    }
+
+
+    // p2p server and client
+    //--------------------------------------------
     var chatList = [];
     server.on("error", (e) => {
         alert("端口被占用，请重启app");
     })
-    server.listen(3000);
-
+    server.listen(remote.getGlobal("port"));
     receiver.on('connection', function(socket){
         socket.on("hello", function (data) {
             chatList[data.username].socket = socket;
+            chatList[data.username].session_key = cipher.Cipher.decrypt(data.session_key);
         })
         socket.on('disconnect', function(){
             incoming = null;
@@ -22,16 +43,24 @@ const sender = require('socket.io-client');
         socket.on("message", receive_msg);
     });
     function makeConnection(target) {
-        current_username = "user2";
+        var session_key = new Date().getTime();
+        Math.random();
+        session_key = session_key + new Date().getTime();
+        chatList[target.username].session_key = session_key;
+        target.pubKeyObj = cipher.KEYUTIL.getKey(target.pubKey);
+
         var socket = sender.connect('http://' + target.device.IP + ':' + target.device.port);
         chatList[target.username].socket = socket;
         socket.emit("hello", {
-            username: current_username
+            username: current_username,
+            session_key: cipher.Cipher.encrypt(session_key, target.pubKeyObj)
         });
         socket.on('message', receive_msg);
         return socket;
     }
 
+    // viewer
+    //----------------------------------------------------
     var current_username = Cookies.get('username');
     var current_userimgurl = Cookies.get('imgurl');
     var current_friend = '';
@@ -54,9 +83,12 @@ const sender = require('socket.io-client');
     });
 
     $("#send_btn").click(function () {
+        var encripted_message = cipher.CryptoJS.AES.encrypt($("#input_msg").val(), chatList[current_friend].session_key);
+        var msg_signature = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key}).updateString($("#input_msg").val()).doFinal();
         chatList[current_friend].socket.emit("message", {
             from: current_username,
-            content: $("#input_msg").val()
+            content: encripted_message,
+            signature: msg_signature
         })
         append_msg('me', $("#input_msg").val(), "假装有日期时间")
         chatList[current_friend].history.push({
@@ -114,11 +146,15 @@ const sender = require('socket.io-client');
         $("#newfriend").val("");
         refresh_friendlist();
     });
-
     function receive_msg(data) {
+        var plain_message = cipher.CryptoJS.AES.decrypt(data.content, chatList[data.from].session_key);
+        var msg_signature = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key}).updateString(plain_message).doFinal();
+        if (msg_signature != data.signature) {
+            return false;
+        }
         chatList[data.from].history.push({
             type: 'other',
-            message: data.content,
+            message: plain_message,
             extmsg: "fake date"
         })
         if (data.from == current_friend) {
@@ -202,27 +238,6 @@ const sender = require('socket.io-client');
             });
     }
 
-    function chatfresh() {
-        setInterval(function () {
-            $.ajax(
-                {
-                    type: 'POST',
-                    url: 'message.php?method=get',
-                    data: {'with': current_friend},
-                    dataType: 'json'
-                })
-                .done(function (data) {
-                    $.each(data, function (id, piece) {
-                        if (!$.isEmptyObject(piece)) {
-                            if (piece.fromuser == current_username) type = 'me';
-                            else type = 'others';
-                            append_msg(type, piece.content, piece.time);
-                        }
-                    })
-                });
-        }, 500);
-    }
-
     function chatreset() {
         $.ajax(
             {
@@ -235,6 +250,5 @@ const sender = require('socket.io-client');
     chatreset();
     refresh_friendlist();
     append_msg('others', '⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾ 欢迎使用本系统！ ', '2016-03-31 00:00:00');
-    chatfresh();
 
 })(jQuery);

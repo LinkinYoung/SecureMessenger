@@ -54,6 +54,8 @@ const os = require('os');
             keyPaire.pemPublic = fs.readFileSync(userPath + '/public.pem', 'utf8');
             keyPaire.prvKeyObj = cipher.KEYUTIL.getKeyFromEncryptedPKCS8PEM(keyPaire.pemPrivate, password);
             keyPaire.pubKeyObj = cipher.KEYUTIL.getKey(keyPaire.pemPublic);
+            localStorage.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV");
+            localStorage.pemPublic = keyPaire.pemPublic;
         } catch (e) {
             alert(e.message);
             try {
@@ -69,6 +71,8 @@ const os = require('os');
                 fs.writeSync(privFile, keyPaire.pemPrivate);
                 keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
                 fs.writeSync(pubFile, keyPaire.pemPublic);
+                localStorage.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV");
+                localStorage.pemPublic = keyPaire.pemPublic;
             } catch (error) {
                 alert("创建密钥失败" + error.message);
             }
@@ -142,6 +146,8 @@ const os = require('os');
                 fs.writeSync(privFile, keyPaire.pemPrivate);
                 keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
                 fs.writeSync(pubFile, keyPaire.pemPublic);
+                localStorage.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV");
+                localStorage.pemPublic = keyPaire.pemPublic;
         } catch (error) {
             alert("创建密钥失败" + error.message);
         }
