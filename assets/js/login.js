@@ -199,7 +199,7 @@ const os = require('os');
                     $.ajax(
                         {
                             type: 'POST',
-                            url: 'login.php',
+                            url: 'https://sm.moemoe.tech/login.php',
                             data: mixedData,
                             dataType: 'json'
                         })
@@ -217,7 +217,7 @@ const os = require('os');
                     $.ajax(
                         {
                             type: 'POST',
-                            url: 'login.php?reg=1',
+                            url: 'https://sm.moemoe.tech/login.php?reg=1',
                             data: mixedData,
                             dataType: 'json',
                             async: false,

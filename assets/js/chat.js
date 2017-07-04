@@ -114,7 +114,7 @@ const cipher = require('jsrsasign');
             $.ajax(
                 {
                     type: 'POST',
-                    url: 'friends.php?method=addfriend',
+                    url: 'https://sm.moemoe.tech/friends.php?method=addfriend',
                     data: {'username': $("#newfriend").val()},
                     dataType: 'json'
                 })
@@ -136,7 +136,7 @@ const cipher = require('jsrsasign');
         $.ajax(
             {
                 type: 'POST',
-                url: 'friends.php?method=deletefriend',
+                url: 'https://sm.moemoe.tech/friends.php?method=deletefriend',
                 data: {'username': todelete},
                 dataType: 'json'
             })
@@ -178,7 +178,7 @@ const cipher = require('jsrsasign');
 <div class="media-body">\
 <div class="media">\
 <a class="pull-' + dir + '">\
-<img class="media-object img-circle " src="' + imgurl + '">\
+<img class="media-object img-circle " src="https://sm.moemoe.tech/' + imgurl + '">\
 </a>\
 <div class="media-body text-' + dir + '">\
 ' + $msg + '<br>\
@@ -203,7 +203,7 @@ const cipher = require('jsrsasign');
 <div class="media">\
 <btn class="pull-left" href="#">\
 <img class="media-object img-circle" style="max-height:40px;"\
- src="' + $imgurl + '"/>\
+ src="https://sm.moemoe.tech/' + $imgurl + '"/>\
 </btn>\
 <div class="media-body">\
 <btn>\
@@ -225,7 +225,7 @@ const cipher = require('jsrsasign');
         $.ajax(
             {
                 type: 'GET',
-                url: 'friends.php?method=getfriends',
+                url: 'https://sm.moemoe.tech/friends.php?method=getfriends',
                 dataType: 'json'
             })
             .done(function (data) {
@@ -237,17 +237,6 @@ const cipher = require('jsrsasign');
                 })
             });
     }
-
-    function chatreset() {
-        $.ajax(
-            {
-                type: 'GET',
-                url: 'message.php?method=reset',
-                dataType: 'json'
-            });
-    }
-
-    chatreset();
     refresh_friendlist();
     append_msg('others', '⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾ 欢迎使用本系统！ ', '2016-03-31 00:00:00');
 
