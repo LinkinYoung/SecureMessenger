@@ -3,6 +3,7 @@ const app = remote.app;
 const fs = require('fs');
 const cipher = require('jsrsasign');
 const os = require('os');
+const ip = require("ip");
 
 (function($) {
     "use strict";
@@ -79,6 +80,7 @@ const os = require('os');
         }
         $("#lg_pubKey").val(keyPaire.pemPublic);
         $("#lg_deviceName").val(deviceInfo.name);
+        $("#lg_deviceIP").val(ip.address());
         $("#lg_devicePort").val(deviceInfo.port);
 
         
@@ -200,12 +202,17 @@ const os = require('os');
                         {
                             type: 'POST',
                             url: 'https://sm.moemoe.tech/login.php',
-                            data: mixedData,
+                            data: $form.serialize(),
                             dataType: 'json'
                         })
                         .done(function (data) {
-                            if(data.code < 300)
-                            {
+                            // Verify phone.
+                            if (data.code === 402 || data.code === 412) {
+                                Cookies.set('username',$("#lg_username").val());
+                                setTimeout(function() {form_success($form, data.message);}, 500);
+                                setTimeout(function() {location.href = 'sms_verify.html';}, 1000);
+                            }
+                            else if (data.code < 300) {
                                 Cookies.set('username',$("#lg_username").val());
                                 setTimeout(function() {form_success($form, data.message);}, 500);
                                 setTimeout(function() {location.href = 'chat.html';}, 1000);

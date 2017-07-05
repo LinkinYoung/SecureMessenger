@@ -2,7 +2,7 @@ const {app, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
 
-var port = Math.floor(Math.random() * 10000 + 20000);
+global.port = Math.floor(Math.random() * 10000 + 20000);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -17,7 +17,7 @@ function createWindow () {
 
   // and load the index.html of the app.
   win.loadURL(url.format({
-    pathname: path.join(__dirname, '/chat.html'),
+    pathname: path.join(__dirname, '/login.html'),
     protocol: 'file:',
     slashes: true
   }))

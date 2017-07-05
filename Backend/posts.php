@@ -13,16 +13,16 @@ switch($_GET['method'])
     case 'get':
         try {
             $stmt = $DBH->prepare('
-SELECT posts.ID, friends.dest AS username, user.pic AS userpic,
+SELECT posts.ID, friends.dest AS username, users.pic AS userpic,
        posts.pic AS postpic, posts.content, posts.thumb, posts.time 
 FROM posts 
 LEFT JOIN friends ON friends.dest = posts.username 
-LEFT JOIN user ON friends.dest = user.username 
+LEFT JOIN users ON friends.dest = users.username 
 WHERE friends.src = ?
-UNION SELECT posts.ID, posts.username, user.pic, posts.pic, 
+UNION SELECT posts.ID, posts.username, users.pic, posts.pic, 
              posts.content, posts.thumb, posts.time 
 FROM posts
-LEFT JOIN user ON posts.username = user.username
+LEFT JOIN users ON posts.username = users.username
 WHERE posts.username = ?
 ORDER BY ID DESC;');
             $stmt->execute([$_SESSION['username'], $_SESSION['username']]);

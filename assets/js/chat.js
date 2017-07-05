@@ -49,7 +49,7 @@ const cipher = require('jsrsasign');
         chatList[target.username].session_key = session_key;
         target.pubKeyObj = cipher.KEYUTIL.getKey(target.pubKey);
 
-        var socket = sender.connect('http://' + target.device.IP + ':' + target.device.port);
+        var socket = sender.connect('http://' + target.deviceIP + ':' + target.devicePort);
         chatList[target.username].socket = socket;
         socket.emit("hello", {
             username: current_username,
@@ -237,7 +237,7 @@ const cipher = require('jsrsasign');
                 })
             });
     }
-    refresh_friendlist();
+    setInterval(function () { refresh_friendlist(); }, 1000);
     append_msg('others', '⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾ 欢迎使用本系统！ ', '2016-03-31 00:00:00');
 
 })(jQuery);
