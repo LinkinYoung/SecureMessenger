@@ -5,12 +5,13 @@ const server = require('http').createServer();
 const receiver = require('socket.io')(server);
 const sender = require('socket.io-client');
 const cipher = require('jsrsasign');
-const AES = require('node-cryptojs-aes').CryptoJS.AES;
+const node_cryptojs = require('node-cryptojs-aes');
+const CryptoJS = node_cryptojs.CryptoJS;
 
-var chatList = [];
 (function ($) {
     // Read key pairs
     //--------------------------------------------
+    var chatList = [];
     var keyPaire = {
         prvKeyObj: {},
         pubKeyObj: {},
@@ -26,6 +27,17 @@ var chatList = [];
         alert("读取密钥对失败");
     }
 
+    // AES helper
+    //--------------------------------------------
+    const JsonFormatter = node_cryptojs.JsonFormatter;
+    function AESencrypt(message, pass) {
+        var encrypted = CryptoJS.AES.encrypt(message, pass, { format: JsonFormatter });
+        return encrypted.toString();
+    }
+    function AESdecrypt(message, pass) {
+        var decrypted = CryptoJS.AES.decrypt(message, pass, { format: JsonFormatter });
+        return CryptoJS.enc.Utf8.stringify(decrypted);
+    }
 
     // p2p server and client
     //--------------------------------------------
@@ -39,26 +51,27 @@ var chatList = [];
             chatList[data.username].session_key = cipher.Cipher.decrypt(data.session_key, keyPaire.prvKeyObj);
         })
         socket.on('disconnect', function(){
+
         });
-        socket.on("message", function(data) {
-            alert(data);
-            receive_msg(data);
-        });
+        socket.on("message", receive_msg);
     });
     function makeConnection(target) {
-        var session_key = new Date().getTime() + '+';
-        Math.random();
-        session_key = session_key + new Date().getTime();
-        chatList[target.username].session_key = session_key;
-        target.pubKeyObj = cipher.KEYUTIL.getKey(target.pubKey);
-
-        var socket = sender.connect('http://' + target.deviceIP + ':' + target.devicePort);
-        chatList[target.username].socket = socket;
-        socket.emit("hello", {
-            username: current_username,
-            session_key: cipher.Cipher.encrypt(session_key, target.pubKeyObj)
-        });
-        socket.on('message', receive_msg);
+        try {
+            var session_key = new Date().getTime() + '+';
+            Math.random();
+            session_key = session_key + new Date().getTime();
+            chatList[target.username].session_key = session_key;
+            target.pubKeyObj = cipher.KEYUTIL.getKey(target.pubKey);
+            var socket = sender.connect('http://' + target.deviceIP + ':' + target.devicePort);
+            chatList[target.username].socket = socket;
+            socket.emit("hello", {
+                username: current_username,
+                session_key: cipher.Cipher.encrypt(session_key, target.pubKeyObj)
+            });
+            socket.on('message', receive_msg);
+        } catch (e) {
+            alert("对方不在线");
+        }
         return socket;
     }
 
@@ -74,7 +87,7 @@ var chatList = [];
         if(current_friend == $(this).parent().find(".username").html()) return;
         $("#chatbox-list").empty();
         current_friend = $(this).parent().find(".username").html();
-        current_friendimgurl = $(this).parent().parent().find("img").attr("src");
+        current_friendimgurl = chatList[current_friend].pic;
         $("#current_chatname").html("你正在与 " + current_friend + " 进行交易");
         if (jQuery.isEmptyObject(chatList[current_friend].socket)) {
             makeConnection(chatList[current_friend]);
@@ -86,22 +99,30 @@ var chatList = [];
     });
 
     $("#send_btn").click(function () {
-        var encripted_message = AES.encrypt($("#input_msg").val(), chatList[current_friend].session_key);
+        var encripted_message = AESencrypt($("#input_msg").val(), chatList[current_friend].session_key);
         var mac = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key});
         mac.updateString($("#input_msg").val());
         var msg_signature = mac.doFinal();
-        chatList[current_friend].socket.emit("message", {
-            from: current_username,
-            content: encripted_message,
-            signature: msg_signature
-        })
-        append_msg('me', $("#input_msg").val(), "假装有日期时间")
-        chatList[current_friend].history.push({
-            type: 'me',
-            message: $("#input_msg").val(),
-            extmsg: "假装有日期时间"
-        })
-        $("#input_msg").val('');
+        try {
+            if (chatList[current_friend].socket.disconnected) {
+                throw "disconnected";
+            }
+            chatList[current_friend].socket.emit("message", {
+                from: current_username,
+                content: encripted_message,
+                signature: msg_signature
+            })
+            append_msg('me', $("#input_msg").val(), "假装有日期时间")
+            chatList[current_friend].history.push({
+                type: 'me',
+                message: $("#input_msg").val(),
+                extmsg: "假装有日期时间"
+            })
+            $("#input_msg").val('');
+        } catch (e) {
+            makeConnection(chatList[current_friend]);
+        }
+
     });
 
     $("#input_msg").on('keydown', function (e) {
@@ -152,8 +173,8 @@ var chatList = [];
         refresh_friendlist();
     });
     function receive_msg(data) {
-        var plain_message = AES.decrypt(data.content, chatList[data.from].session_key);
-        var mac = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key});
+        var plain_message = AESdecrypt(data.content, chatList[data.from].session_key);
+        var mac = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[data.from].session_key});
         mac.updateString(plain_message);
         var msg_signature = mac.doFinal();
         if (msg_signature != data.signature) {
@@ -165,11 +186,12 @@ var chatList = [];
             extmsg: "fake date"
         })
         if (data.from == current_friend) {
-            append_msg('other', data.content, 'Fake Date');
+            append_msg('other', plain_message, 'Fake Date');
         }
     }
 
     function append_msg($type, $msg, $extmsg) {
+        var imgurl = "";
         switch ($type) {
             case 'me':
                 dir = 'right';
