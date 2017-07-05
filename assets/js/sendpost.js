@@ -8,7 +8,7 @@
         $.ajax(
             {
                 type: 'POST',
-                url: 'posts.php?method=send',
+                url: 'https://sm.moemoe.tech/posts.php?method=send',
                 data: formData,
                 dataType: 'json',
                 async: false,
@@ -19,7 +19,7 @@
             .done(function (data) {
                 if (data.code < 300) {
                     alert('发送成功');
-                    location.href = '../../activities.html';
+                    location.href = 'activities.html';
                 }
                 else alert(data.message);
             });

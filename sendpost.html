@@ -6,16 +6,14 @@
 
     <title>Send Posts</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <link href="assets/css/sendpost.css" rel="stylesheet">
-    <script src="assets/js/jquery-3.1.1.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
 </head>
 
 <body>
 <div class="container">
     <div class="row">
-        <form role="form" id="contact-form" class="contact-form" action="posts.php?method=send" method="post">
+        <form role="form" id="contact-form" class="contact-form" action="https://sm.moemoe.tech/posts.php?method=send" method="post">
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
@@ -35,6 +33,10 @@
         </form>
     </div>
 </div>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+<script src="assets/js/jquery-3.1.1.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
 <script src="assets/js/cookies.js"></script>
 <script src="assets/js/sendpost.js"></script>
+<script>if (window.module) module = window.module;</script>
 </body>

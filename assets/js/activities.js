@@ -2,15 +2,15 @@
  * Created by shzha on 2016/12/29.
  */
 (function ($) {
-    $("#user-name").html(Cookies.get('username'));
-    $("#avt").attr('src', Cookies.get('imgurl'));
+    $("#user-name").html(localStorage.username);
+    $("#avt").attr('src', 'https://sm.moemoe.tech/'+localStorage.imgurl);
     loadpage();
 
     $('#content-list').delegate('likebtn', 'click', function () {
         $.ajax(
             {
                 type: 'POST',
-                url: 'posts.php?method=thumb',
+                url: 'https://sm.moemoe.tech/posts.php?method=thumb',
                 data: {'ID': $(this).attr('data-id')},
                 dataType: 'json'
             })
@@ -27,7 +27,7 @@
     });
 
     $("#sendbtn").click(function () {
-        location.href = '../../sendpost.html';
+        location.href = 'sendpost.html';
     });
 
     function append_item($id, $username, $userpic, $content, $pic, $thumb, $time) {
@@ -37,13 +37,13 @@
         if ($pic == '') picpayload = '';
         else picpayload = '\
 <p>\
-<img class="list-img data-avt" src="' + $pic + '" href="' + $pic + '" style="height: 80px;">\
+<img class="list-img data-avt" src="https://sm.moemoe.tech/' + $pic + '" href="https://sm.moemoe.tech/' + $pic + '" style="height: 80px;">\
 </p>';
 
         payload = '\
 <li>\
 <div class="po-avt-wrap">\
-<img class="po-avt data-avt" src="' + $userpic + '">\
+<img class="po-avt data-avt" src="https://sm.moemoe.tech/' + $userpic + '">\
 </div>\
 <div class="po-cmt">\
 <div class="po-hd">\
@@ -72,7 +72,7 @@
         $.ajax(
             {
                 type: 'GET',
-                url: 'posts.php?method=get',
+                url: 'https://sm.moemoe.tech/posts.php?method=get',
                 dataType: 'json'
             })
             .done(function (data) {

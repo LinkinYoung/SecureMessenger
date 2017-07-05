@@ -36,10 +36,12 @@ ORDER BY ID DESC;');
     case 'send':
         if(isset($_FILES['pic_upload']) and basename($_FILES['pic_upload']['name'])!='')
         {
-            $uploaddir = 'G:/xampp/php7/htdocs/chat/assets/img/';
-            $uploadfile = $uploaddir . basename($_FILES['pic_upload']['name']);
+            $uploaddir = getcwd() . '/assets/img/';
+            $filename = bin2hex(openssl_random_pseudo_bytes(15));
+            $uploaddir = getcwd() . '/assets/img/';
+            $uploadfile = $uploaddir . $filename;
             move_uploaded_file($_FILES['pic_upload']['tmp_name'], $uploadfile);
-            $picurl = 'assets/img/' . basename($_FILES['pic_upload']['name']);
+            $picurl = 'assets/img/' . $filename;
         }
         else $picurl = '';
         $stmt = $DBH->prepare('INSERT INTO posts (username, content, pic) VALUES (?, ?, ?);');
