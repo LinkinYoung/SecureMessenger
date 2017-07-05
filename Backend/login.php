@@ -92,12 +92,12 @@ if (isset($_POST['username'])) {
       UPDATE status = 'active';
       ")；
             */
-            $stmt->execute([$_SESSION['username'], $_POST['pubKey'], $_POST['deviceIP'], $_POST['deviceName']]);
+            $stmt->execute([$_POST['username'], $_POST['pubKey'], $_POST['deviceIP'], $_POST['deviceName']]);
 
             if ($stmt->rowCount() > 0) {
                 // When using the old device.
                 // Update status to active.
-                $stmt = $DBH->prepare("UPDATE login_status SET status = 'active', DevicePort = ? WHERE PubKey = ? AND DeviceIP = ?;");
+                $stmt = $DBH->prepare("UPDATE login_status SET status = 'active', DevicePort = ?, updated_at = CURRENT_TIMESTAMP WHERE PubKey = ? AND DeviceIP = ?;");
                 $stmt->execute([$_POST['devicePort'], $_POST['pubKey'], $_POST['deviceIP']]);
                 if ($stmt->rowCount() <= 0)
                     jsonret(403, '设备登记错误！');
@@ -107,7 +107,7 @@ if (isset($_POST['username'])) {
                 // When meet a new device.
                 $_SESSION['mobile'] = $data['mobile'];
                 $_SESSION['username_onhold'] = $_POST['username'];
-                jsonret(402, '检测到设备更换，请重新验证手机信息！');
+                jsonret(402, '新设备，将进行多步认证！');
             }
         } else
             // When not.

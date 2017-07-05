@@ -238,6 +238,6 @@ const cipher = require('jsrsasign');
             });
     }
     setInterval(function () { refresh_friendlist(); }, 1000);
-    append_msg('others', '⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾ 欢迎使用本系统！ ', '2016-03-31 00:00:00');
+    append_msg('others', '⁽⁽٩(๑˃̶͈̀ ᗨ ˂̶͈́)۶⁾⁾ 欢迎使用本系统！ ', '2017-07-01 00:00:00');
 
 })(jQuery);
