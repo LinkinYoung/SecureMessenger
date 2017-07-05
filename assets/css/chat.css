@@ -1,12 +1,12 @@
 #chatbox-list {
-    height: 500px;
+    height: 400px;
     overflow-x: hidden;
     overflow-y: auto;
     padding-right: 10px;
 }
 
 #friend-list {
-    height: 560px;
+    height: 450px;
     overflow-x: hidden;
     overflow-y: auto;
 }
