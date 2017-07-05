@@ -76,11 +76,12 @@ if (isset($_POST['username'])) {
                 case 'inactive':
                     $_SESSION['mobile'] = $data['mobile'];
                     $_SESSION['username_onhold'] = $_POST['username'];
-                    jsonret(412, '账户未激活！');
+                    echo json_encode(['code' => 412, 'message' => '账户未激活！', 'imgurl' => $data['pic']]);
+                    exit;
             }
 
-            // Set user's avatar url.
-            setcookie('imgurl', $data['pic']);
+            // Set user's avatar url. Disabled because of an electron bug.
+            //setcookie('imgurl', $data['pic']);
 
             // Store the client information.
             $stmt = $DBH->prepare("SELECT * FROM login_status WHERE username = ? AND PubKey = ? AND DeviceIP = ? AND DeviceName = ?;");
@@ -102,12 +103,14 @@ if (isset($_POST['username'])) {
                 if ($stmt->rowCount() <= 0)
                     jsonret(403, '设备登记错误！');
                 $_SESSION['username'] = $_POST['username'];
-                jsonret(200, '登录成功！');
+                echo json_encode(['code' => 200, 'message' => '登录成功！', 'imgurl' => $data['pic']]);
+                exit;
             } else {
                 // When meet a new device.
                 $_SESSION['mobile'] = $data['mobile'];
                 $_SESSION['username_onhold'] = $_POST['username'];
-                jsonret(402, '新设备，将进行多步认证！');
+                echo json_encode(['code' => 402, 'message' => '新设备，将进行多步认证！', 'imgurl' => $data['pic']]);
+                exit;
             }
         } else
             // When not.
