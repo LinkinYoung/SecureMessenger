@@ -221,7 +221,6 @@ const cipher = require('jsrsasign');
     }
 
     function refresh_friendlist() {
-        $("#friend-list").empty();
         $.ajax(
             {
                 type: 'GET',
@@ -229,6 +228,7 @@ const cipher = require('jsrsasign');
                 dataType: 'json'
             })
             .done(function (data) {
+                $("#friend-list").empty();
                 $.each(data, function (id, piece) {
                     append_fiend(piece.username, piece.pic);
                     chatList[piece.username] = piece;
