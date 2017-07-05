@@ -5,7 +5,9 @@ const server = require('http').createServer();
 const receiver = require('socket.io')(server);
 const sender = require('socket.io-client');
 const cipher = require('jsrsasign');
+const AES = require('node-cryptojs-aes').CryptoJS.AES;
 
+var chatList = [];
 (function ($) {
     // Read key pairs
     //--------------------------------------------
@@ -27,7 +29,6 @@ const cipher = require('jsrsasign');
 
     // p2p server and client
     //--------------------------------------------
-    var chatList = [];
     server.on("error", (e) => {
         alert("端口被占用，请重启app");
     })
@@ -35,15 +36,17 @@ const cipher = require('jsrsasign');
     receiver.on('connection', function(socket){
         socket.on("hello", function (data) {
             chatList[data.username].socket = socket;
-            chatList[data.username].session_key = cipher.Cipher.decrypt(data.session_key);
+            chatList[data.username].session_key = cipher.Cipher.decrypt(data.session_key, keyPaire.prvKeyObj);
         })
         socket.on('disconnect', function(){
-            incoming = null;
         });
-        socket.on("message", receive_msg);
+        socket.on("message", function(data) {
+            alert(data);
+            receive_msg(data);
+        });
     });
     function makeConnection(target) {
-        var session_key = new Date().getTime();
+        var session_key = new Date().getTime() + '+';
         Math.random();
         session_key = session_key + new Date().getTime();
         chatList[target.username].session_key = session_key;
@@ -61,8 +64,8 @@ const cipher = require('jsrsasign');
 
     // viewer
     //----------------------------------------------------
-    var current_username = Cookies.get('username');
-    var current_userimgurl = Cookies.get('imgurl');
+    var current_username = localStorage.username;
+    var current_userimgurl = localStorage.imgurl;
     var current_friend = '';
     var current_friendimgurl = 'assets/img/steam.png';
     var todelete = '';
@@ -83,8 +86,10 @@ const cipher = require('jsrsasign');
     });
 
     $("#send_btn").click(function () {
-        var encripted_message = cipher.CryptoJS.AES.encrypt($("#input_msg").val(), chatList[current_friend].session_key);
-        var msg_signature = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key}).updateString($("#input_msg").val()).doFinal();
+        var encripted_message = AES.encrypt($("#input_msg").val(), chatList[current_friend].session_key);
+        var mac = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key});
+        mac.updateString($("#input_msg").val());
+        var msg_signature = mac.doFinal();
         chatList[current_friend].socket.emit("message", {
             from: current_username,
             content: encripted_message,
@@ -147,8 +152,10 @@ const cipher = require('jsrsasign');
         refresh_friendlist();
     });
     function receive_msg(data) {
-        var plain_message = cipher.CryptoJS.AES.decrypt(data.content, chatList[data.from].session_key);
-        var msg_signature = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key}).updateString(plain_message).doFinal();
+        var plain_message = AES.decrypt(data.content, chatList[data.from].session_key);
+        var mac = new cipher.Mac({alg: "HmacSHA1", "pass": chatList[current_friend].session_key});
+        mac.updateString(plain_message);
+        var msg_signature = mac.doFinal();
         if (msg_signature != data.signature) {
             return false;
         }
@@ -231,9 +238,21 @@ const cipher = require('jsrsasign');
                 $("#friend-list").empty();
                 $.each(data, function (id, piece) {
                     append_fiend(piece.username, piece.pic);
-                    chatList[piece.username] = piece;
-                    chatList[piece.username].socket = {};
-                    chatList[piece.username].history = [];
+                    if (chatList[piece.username] == undefined) {
+                        chatList[piece.username] = {};
+                    }
+                    chatList[piece.username].deviceIP = piece.deviceIP;
+                    chatList[piece.username].devicePort = piece.devicePort;
+                    chatList[piece.username].pic = piece.pic;
+                    chatList[piece.username].pubKey = piece.pubKey;
+                    chatList[piece.username].status = piece.status;
+                    chatList[piece.username].username = piece.username;
+                    if (chatList[piece.username].socket == undefined) {
+                        chatList[piece.username].socket = {};
+                    }
+                    if (chatList[piece.username].history == undefined) {
+                        chatList[piece.username].history = [];
+                    }
                 })
             });
     }

@@ -58,7 +58,6 @@ const ip = require("ip");
             localStorage.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV");
             localStorage.pemPublic = keyPaire.pemPublic;
         } catch (e) {
-            alert(e.message);
             try {
                 try {
                     fs.mkdirSync(userPath);
@@ -67,7 +66,7 @@ const ip = require("ip");
                 }
                 var privFile = fs.openSync(userPath + '/private.pem', 'w');
                 var pubFile = fs.openSync(userPath + '/public.pem', 'w');
-                keyPaire = cipher.KEYUTIL.generateKeypair("EC", "secp256r1");
+                keyPaire = cipher.KEYUTIL.generateKeypair("RSA", 1024);
                 keyPaire.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV", password);
                 fs.writeSync(privFile, keyPaire.pemPrivate);
                 keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
@@ -143,7 +142,7 @@ const ip = require("ip");
                 }
                 var privFile = fs.openSync(userPath + '/private.pem', 'w');
                 var pubFile = fs.openSync(userPath + '/public.pem', 'w');
-                keyPaire = cipher.KEYUTIL.generateKeypair("EC", "secp256r1");
+                keyPaire = cipher.KEYUTIL.generateKeypair("RSA", 1024);
                 keyPaire.pemPrivate = cipher.KEYUTIL.getPEM(keyPaire.prvKeyObj, "PKCS8PRV", password);
                 fs.writeSync(privFile, keyPaire.pemPrivate);
                 keyPaire.pemPublic = cipher.KEYUTIL.getPEM(keyPaire.pubKeyObj);
@@ -206,14 +205,14 @@ const ip = require("ip");
                             dataType: 'json'
                         })
                         .done(function (data) {
+                            localStorage.username = $("#lg_username").val();
+                            localStorage.imgurl = data.imgurl;
                             // Verify phone.
                             if (data.code === 402 || data.code === 412) {
-                                Cookies.set('username',$("#lg_username").val());
                                 setTimeout(function() {form_success($form, data.message);}, 500);
                                 setTimeout(function() {location.href = 'sms_verify.html';}, 1000);
                             }
                             else if (data.code < 300) {
-                                Cookies.set('username',$("#lg_username").val());
                                 setTimeout(function() {form_success($form, data.message);}, 500);
                                 setTimeout(function() {location.href = 'chat.html';}, 1000);
                             }
