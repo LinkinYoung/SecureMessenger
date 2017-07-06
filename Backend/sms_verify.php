@@ -34,12 +34,12 @@ if (empty($_POST['code'])) {
         $req->setRecNum($mobile);
         $req->setSmsTemplateCode("SMS_75770083");
         // Send SMS.
-        //$resp = $c->execute($req);
+        $resp = $c->execute($req);
     } catch (Exception $e) {
         jsonret(502, "短信服务故障！");
     }
     // Return Phone number and status.
-    echo json_encode(['code' => 210, 'message' => "短信已发送！$sms_code", 'mobile' => substr($mobile, 0, 3) . '****' . substr($mobile, 7, 4)]);
+    echo json_encode(['code' => 210, 'message' => "短信已发送！", 'mobile' => substr($mobile, 0, 3) . '****' . substr($mobile, 7, 4)]);
 } else {
     if ($_POST['code'] == $_SESSION['sms_code']) {
         $_SESSION['username'] = $_SESSION['username_onhold'];
