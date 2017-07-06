@@ -112,11 +112,11 @@ const CryptoJS = node_cryptojs.CryptoJS;
                 content: encripted_message,
                 signature: msg_signature
             })
-            append_msg('me', $("#input_msg").val(), "假装有日期时间")
+            append_msg('me', $("#input_msg").val(), "")
             chatList[current_friend].history.push({
                 type: 'me',
                 message: $("#input_msg").val(),
-                extmsg: "假装有日期时间"
+                extmsg: ""
             })
             $("#input_msg").val('');
         } catch (e) {
@@ -183,10 +183,10 @@ const CryptoJS = node_cryptojs.CryptoJS;
         chatList[data.from].history.push({
             type: 'other',
             message: plain_message,
-            extmsg: "fake date"
+            extmsg: ""
         })
         if (data.from == current_friend) {
-            append_msg('other', plain_message, 'Fake Date');
+            append_msg('other', plain_message, '');
         }
     }
 
