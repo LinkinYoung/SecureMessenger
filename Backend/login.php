@@ -84,7 +84,7 @@ if (isset($_POST['username'])) {
             //setcookie('imgurl', $data['pic']);
 
             // Store the client information.
-            $stmt = $DBH->prepare("SELECT * FROM login_status WHERE username = ? AND PubKey = ? AND DeviceIP = ? AND DeviceName = ?;");
+            $stmt = $DBH->prepare("SELECT * FROM login_status WHERE username = ? AND PubKey = ? AND DeviceIP = ?;");
             /* Old SQL stmt.
             $stmt = $DBH->prepare("
     INSERT INTO login_status (username, PubKey, DeviceIP, DeviceName, DevicePort, status)
@@ -93,13 +93,13 @@ if (isset($_POST['username'])) {
       UPDATE status = 'active';
       ")；
             */
-            $stmt->execute([$_POST['username'], $_POST['pubKey'], $_POST['deviceIP'], $_POST['deviceName']]);
+            $stmt->execute([$_POST['username'], $_POST['pubKey'], $_POST['deviceIP']]);
 
             if ($stmt->rowCount() > 0) {
                 // When using the old device.
                 // Update status to active.
-                $stmt = $DBH->prepare("UPDATE login_status SET status = 'active', DevicePort = ?, updated_at = CURRENT_TIMESTAMP WHERE PubKey = ? AND DeviceIP = ?;");
-                $stmt->execute([$_POST['devicePort'], $_POST['pubKey'], $_POST['deviceIP']]);
+                $stmt = $DBH->prepare("UPDATE login_status SET status = 'active', DevicePort = ?, DeviceName = ?, updated_at = CURRENT_TIMESTAMP WHERE PubKey = ? AND DeviceIP = ?;");
+                $stmt->execute([$_POST['devicePort'], $_POST['deviceName'], $_POST['pubKey'], $_POST['deviceIP']]);
                 if ($stmt->rowCount() <= 0)
                     jsonret(403, '设备登记错误！');
                 $_SESSION['username'] = $_POST['username'];
