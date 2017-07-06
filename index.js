@@ -11,8 +11,7 @@ let win
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 1200, height: 680,
-    resizable: false
+    width: 1200, height: 680
     //titleBarStyle: 'hidden-inset'
   })
 
